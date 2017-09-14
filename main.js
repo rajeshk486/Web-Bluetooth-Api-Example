@@ -36,7 +36,7 @@
       document.querySelector('#details').innerHTML="Name :"+device.name;
       device.gatt.connect()
       .then(function(server) {
-          return server.getPrimaryService('heart_rate');
+          return server.getPrimaryService('battery_service');
       })
       .then(function(service) {
           // Do something with the GATT service
