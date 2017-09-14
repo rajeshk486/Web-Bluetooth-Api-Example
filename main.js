@@ -34,7 +34,7 @@
   function onSuccess(device) {
       console.log('Connecting to', device, '..');
       document.querySelector('#details').innerHTML="Name :"+device.name;
-      device.connectGATT()
+      device.gatt.connect()
       .then(function(server) {
           return server.getPrimaryService('heart_rate');
       })
