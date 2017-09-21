@@ -1,5 +1,38 @@
-<p>requestDevice must be called from user-action such as clicking button</p>
-<button id="find-devices">Find devices</button>
-
-<div id="details"></div>
-<script src="main.js"></script>
+<html>
+<head>
+	<title>BAttery level</title>
+</head>
+<body>
+<button onclick="onButtonClick()">Click me</button>
+<script>
+	function onButtonClick() {
+  console.log('Requesting Bluetooth Device...');
+  navigator.bluetooth.requestDevice({
+    acceptAllDevices: true})
+  .then(device => {
+    console.log('Connecting to GATT Server...');
+    return device.gatt.connect();
+  })
+  .then(server => {
+    console.log('Getting Battery Service...');
+    return server.getPrimaryService('battery_service');
+  })
+  .then(service => {
+    console.log('Getting Battery Level Characteristic...');
+    return service.getCharacteristic('battery_level');
+  })
+  .then(characteristic => {
+    console.log('Reading Battery Level...');
+    return characteristic.readValue();
+  })
+  .then(value => {
+    let batteryLevel = value.getUint8(0);
+    console.log('> Battery Level is ' + batteryLevel + '%');
+  })
+  .catch(error => {
+    console.log('Argh! ' + error);
+  });
+}
+</script>
+</body>
+</html>
