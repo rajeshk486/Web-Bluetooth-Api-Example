@@ -6,32 +6,46 @@
 <button onclick="onButtonClick()">Click me</button>
 <script>
 	function onButtonClick() {
-  console.log('Requesting Bluetooth Device...');
   navigator.bluetooth.requestDevice({
-    acceptAllDevices: true})
+   // filters: [...] <- Prefer filters to save energy & show relevant devices.
+      acceptAllDevices: true,
+  })
   .then(device => {
     console.log('Connecting to GATT Server...');
     return device.gatt.connect();
   })
   .then(server => {
-    console.log('Getting Battery Service...');
-    return server.getPrimaryService('battery_service');
+    // Note that we could also get all services that match a specific UUID by
+    // passing it to getPrimaryServices().
+    console.log('Getting Services...');
+    return server.getPrimaryServices();
   })
-  .then(service => {
-    console.log('Getting Battery Level Characteristic...');
-    return service.getCharacteristic('battery_level');
-  })
-  .then(characteristic => {
-    console.log('Reading Battery Level...');
-    return characteristic.readValue();
-  })
-  .then(value => {
-    let batteryLevel = value.getUint8(0);
-    console.log('> Battery Level is ' + batteryLevel + '%');
+  .then(services => {
+    console.log('Getting Characteristics...');
+    let queue = Promise.resolve();
+    services.forEach(service => {
+      queue = queue.then(_ => service.getCharacteristics().then(characteristics => {
+        console.log('> Service: ' + service.uuid);
+        characteristics.forEach(characteristic => {
+          console.log('>> Characteristic: ' + characteristic.uuid + ' ' +
+              getSupportedProperties(characteristic));
+        });
+      }));
+    });
+    return queue;
   })
   .catch(error => {
     console.log('Argh! ' + error);
   });
+}
+	function getSupportedProperties(characteristic) {
+  let supportedProperties = [];
+  for (const p in characteristic.properties) {
+    if (characteristic.properties[p] === true) {
+      supportedProperties.push(p.toUpperCase());
+    }
+  }
+  return '[' + supportedProperties.join(', ') + ']';
 }
 </script>
 </body>
