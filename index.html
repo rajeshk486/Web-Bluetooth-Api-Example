@@ -22,7 +22,7 @@ function onButtonClick() {
 function handleCharacteristicValueChanged(event) {
   var value = event.target.value;
   console.log('Received ' + value);
-	document.getElementById("status").innerHTML = value.getUint8(0);
+	document.getElementById("status").innerHTML = value;
   // TODO: Parse Heart Rate Measurement value.
   // See https://github.com/WebBluetoothCG/demos/blob/gh-pages/heart-rate-sensor/heartRateSensor.js
 } 
